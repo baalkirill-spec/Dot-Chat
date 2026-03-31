@@ -1,0 +1,29 @@
+# Gradle / Kotlin
+.gradle/
+.gradle-tmp/
+.kotlin/
+
+# Build outputs
+build/
+**/build/
+
+# IDE
+.idea/
+.vs/
+*.iml
+
+# Android local config
+local.properties
+
+# APK / AAB
+*.apk
+*.aab
+
+# Temp files
+tmp_video_frames/
+tmp_video_frames_2233/
+tmp_video_frames_more/
+
+# OS
+Thumbs.db
+.DS_Store

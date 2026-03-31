@@ -1,0 +1,112 @@
+package com.streamgram.feature.createchannel
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.streamgram.core.designsystem.component.StreamPrimaryButton
+import com.streamgram.core.designsystem.component.StreamSectionCard
+import com.streamgram.core.designsystem.component.StreamSegmentedControl
+import com.streamgram.core.designsystem.component.StreamTextField
+import com.streamgram.core.i18n.R
+import com.streamgram.core.model.ConversationVisibility
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateChannelRoute(
+    onBack: () -> Unit,
+    onCreated: (String) -> Unit,
+    viewModel: CreateChannelViewModel = hiltViewModel(),
+) {
+    val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(state.createdChannelId) {
+        state.createdChannelId?.let(onCreated)
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.create_channel_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+            )
+        }
+        item {
+            StreamSectionCard(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    StreamTextField(
+                        value = state.title,
+                        onValueChange = viewModel::onTitleChanged,
+                        label = stringResource(R.string.create_channel_name),
+                    )
+                    StreamTextField(
+                        value = state.handle,
+                        onValueChange = viewModel::onHandleChanged,
+                        label = stringResource(R.string.create_channel_handle),
+                    )
+                    StreamTextField(
+                        value = state.description,
+                        onValueChange = viewModel::onDescriptionChanged,
+                        label = stringResource(R.string.create_channel_description),
+                        singleLine = false,
+                    )
+                    StreamSegmentedControl(
+                        options = listOf(
+                            stringResource(R.string.create_chat_type_public),
+                            stringResource(R.string.create_chat_type_private),
+                        ),
+                        selectedIndex = if (state.visibility == ConversationVisibility.PUBLIC) 0 else 1,
+                        onOptionSelected = viewModel::onVisibilityChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        }
+        item {
+            StreamPrimaryButton(
+                text = stringResource(R.string.create_channel_continue),
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.title.isNotBlank() &&
+                    (state.visibility == ConversationVisibility.PRIVATE || state.handle.length >= 4),
+                isLoading = state.isSubmitting,
+                onClick = viewModel::createChannel,
+            )
+        }
+    }
+}
