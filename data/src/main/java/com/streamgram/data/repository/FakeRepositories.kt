@@ -34,6 +34,7 @@ import java.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 @Singleton
@@ -76,6 +77,14 @@ class FakeChannelsRepository @Inject constructor(
 
     override fun observeChannel(channelId: String): Flow<Channel?> {
         return store.channels.map { channels -> channels.firstOrNull { it.id == channelId } }
+    }
+
+    override suspend fun searchChannels(query: String): List<Channel> {
+        if (query.isBlank()) return emptyList()
+        return store.channels.first().filter { channel ->
+            channel.title.contains(query, ignoreCase = true) ||
+                channel.handle.contains(query, ignoreCase = true)
+        }
     }
 
     override suspend fun createChannel(request: CreateChannelRequest): String {

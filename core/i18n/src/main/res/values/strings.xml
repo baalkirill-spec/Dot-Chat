@@ -2,8 +2,9 @@
     <string name="app_name">Dot Chat</string>
 
     <string name="nav_chats">Chats</string>
-    <string name="nav_contacts">Contacts</string>
     <string name="nav_channels">Channels</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_contacts">Contacts</string>
     <string name="nav_spaces">Spaces</string>
     <string name="nav_notifications">Notifications</string>
     <string name="nav_settings">Settings</string>
@@ -105,7 +106,11 @@
     <string name="chat_list_title">Chats</string>
     <string name="chat_list_empty_title">No chats yet</string>
     <string name="chat_list_empty_body">Start a conversation to see it here.</string>
-    <string name="chat_search_placeholder">Search chats and messages</string>
+    <string name="chat_search_placeholder">Search chats, people, channels</string>
+    <string name="search_section_people">People</string>
+    <string name="search_section_channels">Channels</string>
+    <string name="search_no_results_title">No results</string>
+    <string name="search_no_results_body">Try a different search term.</string>
     <string name="chat_muted">Muted</string>
     <string name="chat_title_fallback">Conversation</string>
     <string name="chat_input_placeholder">Message</string>
@@ -177,6 +182,9 @@
     <string name="language_current">Current</string>
 
     <string name="profile_title">Profile</string>
+    <string name="account_title">Account</string>
+    <string name="account_add_another">Add Another Account</string>
+    <string name="account_add_another_body">Sign into a different Dot Chat account on this device.</string>
     <string name="profile_open_settings">Open settings</string>
     <string name="profile_account_status">Account status</string>
     <string name="profile_premium_badge">Verified</string>

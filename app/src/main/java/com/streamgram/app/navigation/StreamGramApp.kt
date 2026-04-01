@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -46,7 +45,6 @@ import com.streamgram.feature.chat.ChatRoute
 import com.streamgram.feature.chat.ForwardPostRoute
 import com.streamgram.feature.chatlist.ChatListRoute
 import com.streamgram.feature.comments.CommentsRoute
-import com.streamgram.feature.contacts.ContactsRoute
 import com.streamgram.feature.createchannel.CreateChannelRoute
 import com.streamgram.feature.createchat.CreateChatRoute
 import com.streamgram.feature.language.LanguageRoute
@@ -106,18 +104,13 @@ private fun MainShell() {
             icon = Icons.AutoMirrored.Filled.Send,
         ),
         TopLevelDestination(
-            route = MainRoutes.Contacts,
-            label = stringResource(R.string.nav_contacts),
-            icon = Icons.Filled.Call,
-        ),
-        TopLevelDestination(
-            route = MainRoutes.Spaces,
-            label = stringResource(R.string.nav_spaces),
+            route = MainRoutes.Channels,
+            label = stringResource(R.string.nav_channels),
             icon = Icons.Filled.Home,
         ),
         TopLevelDestination(
-            route = MainRoutes.Profile,
-            label = stringResource(R.string.nav_profile),
+            route = MainRoutes.Account,
+            label = stringResource(R.string.nav_account),
             icon = Icons.Filled.Person,
         ),
     )
@@ -169,32 +162,25 @@ private fun MainShell() {
             composable(MainRoutes.Chats) {
                 ChatListRoute(
                     onOpenChat = { chatId -> navController.navigate(MainRoutes.chatDetail(chatId)) },
+                    onOpenChannel = { channelId -> navController.navigate(MainRoutes.channelDetail(channelId)) },
                     onCreateChat = { navController.navigate(MainRoutes.CreateChat) },
                 )
             }
-            composable(MainRoutes.Contacts) {
-                ContactsRoute(
-                    onOpenChat = { chatId -> navController.navigate(MainRoutes.chatDetail(chatId)) },
-                    onOpenCall = { navController.navigate(MainRoutes.Calls) },
-                )
-            }
-            composable(MainRoutes.Spaces) {
+            composable(MainRoutes.Channels) {
                 ChannelsRoute(
                     onOpenChannel = { channelId -> navController.navigate(MainRoutes.channelDetail(channelId)) },
                     onCreateChannel = { navController.navigate(MainRoutes.CreateChannel) },
                 )
             }
-            composable(MainRoutes.Notifications) {
-                NotificationsRoute(
-                    onBack = navController::popBackStack,
-                )
-            }
-            composable(MainRoutes.Profile) {
+            composable(MainRoutes.Account) {
                 ProfileRoute(
                     onOpenSettings = { navController.navigate(MainRoutes.Settings) },
                     onOpenNotifications = { navController.navigate(MainRoutes.Notifications) },
-                    onOpenPrivacy = { navController.navigate(MainRoutes.Privacy) },
-                    onOpenSessions = { navController.navigate(MainRoutes.Sessions) },
+                )
+            }
+            composable(MainRoutes.Notifications) {
+                NotificationsRoute(
+                    onBack = navController::popBackStack,
                 )
             }
             composable(MainRoutes.Settings) {

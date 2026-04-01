@@ -8,11 +8,13 @@ object RootRoutes {
 }
 
 object MainRoutes {
+    // ── Tab-level destinations (3 tabs) ──────────────────────────────────
     const val Chats = "main/chats"
-    const val Contacts = "main/contacts"
-    const val Spaces = "main/spaces"
+    const val Channels = "main/channels"
+    const val Account = "main/account"
+
+    // ── Secondary destinations ────────────────────────────────────────────
     const val Notifications = "main/notifications"
-    const val Profile = "main/profile"
     const val Settings = "main/settings"
     const val Privacy = "main/privacy"
     const val Sessions = "main/sessions"
@@ -20,19 +22,24 @@ object MainRoutes {
     const val CreateChannel = "main/create-channel"
     const val CreateGroup = "main/create-group"
     const val DeleteAccount = "main/delete-account"
+    const val Language = "main/language"
+    const val Calls = "main/calls"
+    const val MediaViewer = "main/media-viewer"
 
+    // ── Parameterized patterns ────────────────────────────────────────────
     const val ChatDetailPattern = "main/chat/{chatId}"
     const val CommentsPattern = "main/comments/{postId}"
     const val ChannelDetailPattern = "main/channel/{channelId}"
     const val ForwardPattern = "main/forward/{postId}"
-    const val Language = "main/language"
-    const val Calls = "main/calls"
     const val CallJoinPattern = "main/calls/join/{roomId}/{type}"
-    const val MediaViewer = "main/media-viewer"
 
-    /** @deprecated Use [Spaces] instead. */
-    @Deprecated("Renamed to Spaces", ReplaceWith("Spaces"))
-    const val Channels = "main/spaces"
+    // ── Deprecated aliases ────────────────────────────────────────────────
+    @Deprecated("Contacts tab removed. People search is inside Chats.", ReplaceWith("Chats"))
+    const val Contacts = "main/chats"
+    @Deprecated("Renamed to Channels", ReplaceWith("Channels"))
+    const val Spaces = "main/channels"
+    @Deprecated("Renamed to Account", ReplaceWith("Account"))
+    const val Profile = "main/account"
 
     fun chatDetail(chatId: String): String = "main/chat/$chatId"
     fun comments(postId: String): String = "main/comments/$postId"

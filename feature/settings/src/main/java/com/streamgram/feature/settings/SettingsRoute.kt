@@ -33,11 +33,8 @@ import com.streamgram.core.designsystem.component.StreamSectionCard
 import com.streamgram.core.designsystem.component.StreamSettingsRow
 import com.streamgram.core.designsystem.component.StreamSwitchCell
 import com.streamgram.core.designsystem.theme.StreamTheme
-import com.streamgram.core.designsystem.theme.DotChatBlue
-import com.streamgram.core.designsystem.theme.DotChatGreen
-import com.streamgram.core.designsystem.theme.DotChatOrange
-import com.streamgram.core.designsystem.theme.DotChatPurple
 import com.streamgram.core.designsystem.theme.DotChatRed
+import com.streamgram.core.designsystem.theme.Slate500
 import com.streamgram.core.i18n.R
 import com.streamgram.core.ui.StreamAvatar
 
@@ -123,21 +120,21 @@ fun SettingsRoute(
                         icon = Icons.Filled.Lock,
                         title = stringResource(R.string.settings_privacy_row),
                         subtitle = stringResource(R.string.settings_privacy_row_subtitle),
-                        iconTint = DotChatGreen,
+                        iconTint = Slate500,
                         onClick = onOpenPrivacy,
                     )
                     StreamSettingsRow(
                         icon = Icons.Filled.Info,
                         title = stringResource(R.string.settings_folders_row),
                         subtitle = stringResource(R.string.settings_folders_row_subtitle),
-                        iconTint = DotChatBlue,
+                        iconTint = Slate500,
                         onClick = onOpenSessions,
                     )
                     StreamSettingsRow(
                         icon = Icons.Filled.Settings,
                         title = stringResource(R.string.settings_language),
                         subtitle = stringResource(R.string.settings_language_subtitle),
-                        iconTint = DotChatGreen,
+                        iconTint = Slate500,
                         onClick = onOpenLanguage,
                     )
                 }

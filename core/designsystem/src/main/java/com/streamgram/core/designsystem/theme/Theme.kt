@@ -10,17 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.dp
 
+// ── Monochrome-first: black/white primary, blue as subtle accent ──────
 private val DotChatDarkColors = darkColorScheme(
-    primary = DotChatBlueDark,
-    secondary = DotChatGreen,
-    tertiary = DotChatRed,
+    primary = SurfaceWhite,
+    onPrimary = Slate950,
+    secondary = DotChatBlue,
+    onSecondary = SurfaceWhite,
+    tertiary = DotChatGreen,
+    onTertiary = Slate950,
+    error = DotChatRed,
     background = Slate950,
     surface = Slate900,
     surfaceContainer = SurfaceDark,
     surfaceContainerHigh = Slate800,
     surfaceVariant = Slate800,
-    onPrimary = SurfaceWhite,
-    onSecondary = Slate950,
     onBackground = SurfaceWhite,
     onSurface = SurfaceWhite,
     onSurfaceVariant = Slate300,
@@ -29,16 +32,18 @@ private val DotChatDarkColors = darkColorScheme(
 )
 
 private val DotChatLightColors = lightColorScheme(
-    primary = DotChatBlue,
-    secondary = DotChatGreen,
-    tertiary = DotChatRed,
-    background = Slate50,
+    primary = Slate950,
+    onPrimary = SurfaceWhite,
+    secondary = DotChatBlue,
+    onSecondary = SurfaceWhite,
+    tertiary = DotChatGreen,
+    onTertiary = SurfaceWhite,
+    error = DotChatRed,
+    background = SurfaceWhite,
     surface = SurfaceWhite,
     surfaceContainer = SurfaceMuted,
     surfaceContainerHigh = SurfaceWhite,
-    surfaceVariant = DotChatBlueSoft,
-    onPrimary = SurfaceWhite,
-    onSecondary = SurfaceWhite,
+    surfaceVariant = Slate100,
     onBackground = Slate950,
     onSurface = Slate950,
     onSurfaceVariant = Slate500,

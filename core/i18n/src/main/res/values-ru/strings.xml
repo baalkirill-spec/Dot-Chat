@@ -2,8 +2,9 @@
     <string name="app_name">Dot Chat</string>
 
     <string name="nav_chats">Чаты</string>
-    <string name="nav_contacts">Контакты</string>
     <string name="nav_channels">Каналы</string>
+    <string name="nav_account">Аккаунт</string>
+    <string name="nav_contacts">Контакты</string>
     <string name="nav_spaces">Пространства</string>
     <string name="nav_notifications">Уведомления</string>
     <string name="nav_profile">Профиль</string>
@@ -122,6 +123,13 @@
     <string name="sessions_title">Устройства и сессии</string>
     <string name="chat_list_empty_title">Чатов пока нет</string>
     <string name="chat_list_empty_body">Начните переписку — она появится здесь.</string>
+    <string name="account_title">Аккаунт</string>
+    <string name="account_add_another">Добавить аккаунт</string>
+    <string name="account_add_another_body">Войдите в другой аккаунт Dot Chat на этом устройстве.</string>
+    <string name="search_section_people">Люди</string>
+    <string name="search_section_channels">Каналы</string>
+    <string name="search_no_results_title">Ничего не найдено</string>
+    <string name="search_no_results_body">Попробуйте другой запрос.</string>
     <string name="create_chat_title">Создать чат</string>
     <string name="create_channel_title">Создать канал</string>
     <string name="upload_limit_title">Файл слишком большой</string>

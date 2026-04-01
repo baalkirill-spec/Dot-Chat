@@ -26,6 +26,12 @@ class ToggleFollowChannelUseCase @Inject constructor(
     }
 }
 
+class SearchChannelsUseCase @Inject constructor(
+    private val repository: ChannelsRepository,
+) {
+    suspend operator fun invoke(query: String): List<Channel> = repository.searchChannels(query)
+}
+
 class CreateChannelUseCase @Inject constructor(
     private val repository: ChannelsRepository,
 ) {

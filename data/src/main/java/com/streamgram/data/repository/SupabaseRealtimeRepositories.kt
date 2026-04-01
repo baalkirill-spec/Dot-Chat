@@ -598,6 +598,28 @@ class SupabaseChannelsRepository @Inject constructor(
         return observeDiscoverChannels().map { channels -> channels.firstOrNull { it.id == channelId } }
     }
 
+    override suspend fun searchChannels(query: String): List<Channel> {
+        if (query.isBlank()) return emptyList()
+        val normalized = query.trim()
+        return runCatching {
+            from(supabase.client, "channels")
+                .select {
+                    filter {
+                        or {
+                            ilike("title", "%$normalized%")
+                            ilike("handle", "%$normalized%")
+                            ilike("description", "%$normalized%")
+                        }
+                    }
+                    limit(20)
+                }
+                .decodeList<SupabaseChannelRow>()
+                .map(SupabaseChannelRow::toChannel)
+        }.getOrElse { throwable ->
+            if (throwable.isMissingSupabaseTable("channels")) emptyList() else throw throwable
+        }
+    }
+
     override suspend fun createChannel(request: CreateChannelRequest): String {
         val snapshot = preferences.preferences.first()
         val currentUserId = snapshot.sessionUserId ?: return ""

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,52 +22,41 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.streamgram.core.designsystem.component.StreamSearchBar
 import com.streamgram.core.designsystem.component.StreamUnreadBadge
-import com.streamgram.core.designsystem.theme.StreamGramTheme
 import com.streamgram.core.designsystem.theme.StreamTheme
 import com.streamgram.core.i18n.R
+import com.streamgram.core.model.Channel
 import com.streamgram.core.model.Chat
-import com.streamgram.core.model.User
+import com.streamgram.core.model.ContactSearchResult
 import com.streamgram.core.ui.StreamAvatar
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 @Composable
 fun ChatListRoute(
     onOpenChat: (String) -> Unit,
+    onOpenChannel: ((String) -> Unit)? = null,
     onCreateChat: () -> Unit,
     viewModel: ChatListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
-    ChatListScreen(
-        chats = state.chats,
-        onOpenChat = onOpenChat,
-        onCreateChat = onCreateChat,
-    )
-}
+    val scope = rememberCoroutineScope()
 
-@Composable
-private fun ChatListScreen(
-    chats: List<Chat>,
-    onOpenChat: (String) -> Unit,
-    onCreateChat: () -> Unit,
-) {
-    val query = remember { mutableStateOf("") }
-    val filteredChats = remember(chats, query.value) {
-        if (query.value.isBlank()) chats else chats.filter {
-            it.title.contains(query.value, ignoreCase = true) ||
-                it.lastMessagePreview.contains(query.value, ignoreCase = true)
+    val filteredChats = remember(state.chats, state.query) {
+        if (state.query.isBlank()) state.chats else state.chats.filter {
+            it.title.contains(state.query, ignoreCase = true) ||
+                it.lastMessagePreview.contains(state.query, ignoreCase = true)
         }
     }
 
@@ -90,37 +80,30 @@ private fun ChatListScreen(
                     text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
             item {
                 StreamSearchBar(
-                    value = query.value,
-                    onValueChange = { query.value = it },
+                    value = state.query,
+                    onValueChange = viewModel::onQueryChanged,
                     placeholder = stringResource(R.string.chat_search_placeholder),
                 )
             }
-            if (filteredChats.isEmpty()) {
+
+            // ── Chats section ────────────────────────────────────────────
+            if (state.query.isNotBlank() && filteredChats.isNotEmpty()) {
                 item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 48.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.chat_list_empty_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
-                            text = stringResource(R.string.chat_list_empty_body),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    SectionHeader(stringResource(R.string.nav_chats))
+                }
+            }
+            if (filteredChats.isEmpty() && state.query.isBlank()) {
+                item {
+                    EmptyState(
+                        title = stringResource(R.string.chat_list_empty_title),
+                        body = stringResource(R.string.chat_list_empty_body),
+                    )
                 }
             }
             items(filteredChats, key = Chat::id) { chat ->
@@ -128,6 +111,61 @@ private fun ChatListScreen(
                     chat = chat,
                     onClick = { onOpenChat(chat.id) },
                 )
+            }
+
+            // ── Loading indicator for remote search ──────────────────────
+            if (state.isSearching) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(strokeWidth = 2.dp)
+                    }
+                }
+            }
+
+            // ── People section ───────────────────────────────────────────
+            if (state.query.isNotBlank() && state.peopleResults.isNotEmpty()) {
+                item {
+                    SectionHeader(stringResource(R.string.search_section_people))
+                }
+                items(state.peopleResults, key = { it.user.id }) { result ->
+                    PersonResultRow(
+                        result = result,
+                        onClick = {
+                            scope.launch {
+                                val chatId = viewModel.startChatWith(result.user.id)
+                                onOpenChat(chatId)
+                            }
+                        },
+                    )
+                }
+            }
+
+            // ── Channels section ─────────────────────────────────────────
+            if (state.query.isNotBlank() && state.channelResults.isNotEmpty()) {
+                item {
+                    SectionHeader(stringResource(R.string.search_section_channels))
+                }
+                items(state.channelResults, key = Channel::id) { channel ->
+                    ChannelResultRow(
+                        channel = channel,
+                        onClick = { onOpenChannel?.invoke(channel.id) },
+                    )
+                }
+            }
+
+            // ── No results ───────────────────────────────────────────────
+            if (state.query.isNotBlank() && !state.isSearching &&
+                filteredChats.isEmpty() && state.peopleResults.isEmpty() && state.channelResults.isEmpty()
+            ) {
+                item {
+                    EmptyState(
+                        title = stringResource(R.string.search_no_results_title),
+                        body = stringResource(R.string.search_no_results_body),
+                    )
+                }
             }
         }
 
@@ -140,6 +178,106 @@ private fun ChatListScreen(
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ) {
             Icon(Icons.Filled.Edit, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 8.dp, start = 4.dp),
+    )
+}
+
+@Composable
+private fun EmptyState(title: String, body: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun PersonResultRow(
+    result: ContactSearchResult,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(StreamTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        StreamAvatar(
+            imageUrl = result.user.avatarUrl,
+            fallbackLabel = result.user.displayName,
+            size = 48.dp,
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = result.user.displayName,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = "@${result.user.username}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChannelResultRow(
+    channel: Channel,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(StreamTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        StreamAvatar(
+            imageUrl = channel.avatarUrl,
+            fallbackLabel = channel.title,
+            size = 48.dp,
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = channel.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = channel.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
         }
     }
 }
@@ -213,29 +351,4 @@ private fun ChatRow(
 private fun formatChatTime(instant: Instant): String {
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
     return formatter.format(instant.atZone(ZoneId.systemDefault()))
-}
-
-@Preview
-@Composable
-private fun ChatListScreenPreview() {
-    StreamGramTheme(darkTheme = false) {
-        ChatListScreen(
-            chats = listOf(
-                Chat(
-                    id = "chat-1",
-                    title = "Alice Nova",
-                    avatarUrl = null,
-                    members = listOf(
-                        User("1", "alice", "Alice Nova", "", "", 0, 0, 0),
-                    ),
-                    unreadCount = 3,
-                    isMuted = false,
-                    lastMessagePreview = "Send me the runtime config post",
-                    lastActivityAt = Instant.now(),
-                ),
-            ),
-            onOpenChat = {},
-            onCreateChat = {},
-        )
-    }
 }

@@ -50,7 +50,7 @@ fun ChannelsRoute(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.spaces_title)) },
+                title = { Text(stringResource(R.string.channels_title)) },
             )
         },
         floatingActionButton = {
